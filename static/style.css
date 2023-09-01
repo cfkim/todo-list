@@ -1,0 +1,25 @@
+.selected {
+    color: orange;
+}
+.complete {
+    text-decoration: line-through;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Horizontal centering */
+    align-items: center; /* Vertical centering */
+    height: 50vh; /* Optionally set a container height */
+}
+
+.center-element{
+    justify-content: center;
+}
+
+.task-list{
+    margin: 0 auto;
+    max-width: 200px; /* Optionally, set a maximum width */
+    /* Other styles for the task list */
+
+}

@@ -1,0 +1,141 @@
+<html>
+<link rel="stylesheet" href="static/style.css">
+<div class="container">
+
+    <div>
+    <h1>To-Do List:</h1>
+    </div>
+
+    <div>
+    <body>
+
+        <p>Enter task:</p>
+        <p><input type = "text" id = "taskInput" placeholder="Enter task"/></p>
+        <button id="addButton"> Add </button>
+        <button id="deleteButton"> Delete </button>
+        <button id="doneButton"> Mark complete </button>
+    </body>
+    </div>
+</div>
+
+    <div class="task-list">
+        <ul id="todo_list"></ul>
+    </div>
+
+    <body>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+
+        var displayLength = 0;
+
+        $(document).ready(function() {
+            $('#addButton').click(function() {
+                var userInput = $('#taskInput').val();
+
+                var dataToSend = {
+                    'task': userInput
+                };
+
+                if (userInput !== undefined && userInput.trim().length != 0) {
+                    document.getElementById("taskInput").value = "";
+
+                    $.ajax({
+                        url: '/todo',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(dataToSend),
+
+                        success: function(response) {
+                            $('#responseMessage').text(response.message);
+
+                            console.log(response);
+
+                            var todoList = response.list;
+                            var targetList = $('#todo_list');
+
+                            for (var i = displayLength; i < todoList.length; i++) {
+                                var task = todoList[i];
+
+                                var listItem = $('<li>')
+                                    .attr('data-task-id', i)
+                                    .addClass('taskItem')
+                                    .text(task);
+                                targetList.append(listItem);
+
+                                listItem.click(function() {
+                                    console.log('Task clicked');
+                                    if ($(this).hasClass('selected')){
+                                        $(this).removeClass('selected');
+                                    }else{
+
+                                        $('.taskItem').removeClass('selected');
+                                        console.log(this);
+                                        $(this).addClass('selected');
+
+                                    }
+                                });
+                            }
+
+                            displayLength = todoList.length;
+
+                        },
+
+                        error: function(error) {
+                            console.error('Error:', error);
+                        }
+                    });
+                }
+            });
+
+        });
+
+
+        $('#deleteButton').click(function() {
+            var selectedTask = $('.taskItem.selected');
+            var taskId = selectedTask.data('task-id');
+            if (taskId !== undefined) {
+                console.log("delete");
+                console.log(taskId);
+
+                var dataToSend = {
+                    'deleteTask': selectedTask.text()
+                };
+
+                $.ajax({
+                    url: '/delete',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(dataToSend),
+
+                    success: function(response) {
+                        console.log(response);
+                        displayLength--;
+                    },
+
+                    error: function(error) {
+                        console.error('Error:', error);
+                    }
+                });
+
+                selectedTask.remove();
+            }
+        });
+
+        $('#doneButton').click(function() {
+
+            var selectedTask = $('.taskItem.selected');
+            var taskId = selectedTask.data('task-id');
+
+            if (taskId !== undefined) {
+                console.log('task done');
+                console.log(taskId);
+                selectedTask.addClass('complete');
+            }
+        });
+
+    </script>
+
+    </body>
+
+</html>
