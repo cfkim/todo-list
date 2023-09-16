@@ -1,5 +1,138 @@
-var displayLength = 0;
+// --------NEW VANILLA JAVASCRIPT CODE--------- //
+document.addEventListener('DOMContentLoaded', function() {
+    var addButton = document.getElementById('addButton');
+    var deleteButton = document.getElementById('deleteButton');
+    var doneButton = document.getElementById('doneButton');
+    var taskInput = document.getElementById('taskInput');
+    // var responseMessage = document.getElementById('responseMessage');
+    var todo_list = document.getElementById('todo_list');
+    var displayLength = 0;
 
+    // add event listener to add button
+    addButton.addEventListener('click', function() {
+        var userInput = taskInput.value;
+
+        // javascript object
+        var dataToSend = {
+            'task': userInput
+        };
+
+        if (userInput !== undefined && userInput.trim().length != 0) {
+            taskInput.value = "";
+            // using native browser API with fetch command
+            fetch('/todo', {
+                method: 'POST',
+                headers:{
+                    'Content-Type' : 'application/json'
+                },
+                body: JSON.stringify(dataToSend)
+            }) // returns a promise object, ensures that asynchronous actions can be performed
+            .then(function(response){
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(function(response){
+                var todoList = response.list; // the list returned from server
+                console.log(todoList)
+                for(var i = displayLength; i < todoList.length; i++){
+                    var task = todoList[i]
+                    var listItem = document.createElement('li');
+                    listItem.setAttribute('task-id', task[1]);
+                    listItem.classList.add('taskItem'); // adds class to list item element
+                    listItem.textContent = task[0];
+
+                    listItem.addEventListener('click', function(){
+                        console.log('task clicked');
+                        console.log(this.getAttribute('task-id'));
+                        if (this.classList.contains('selected')){
+                            this.classList.remove('selected');
+                        }else{
+                            var selectedTasks = document.querySelectorAll('.taskItem.selected')
+                            for(var i = 0; i < selectedTasks.length; i++){
+                                selectedTasks[i].classList.remove('selected');
+                            }
+                            this.classList.add('selected');
+
+                        }
+
+                        console.log(this.classList)
+                    });
+
+                    // add the dynamically created listItem to the todo_list element in HTML
+                    todo_list.appendChild(listItem);
+                }
+
+                displayLength = todoList.length;
+
+            })
+            .catch(function(error){
+                console.error('Error: ', error);
+            });
+        }
+    });
+
+    deleteButton.addEventListener('click', function() {
+        // grabs the currently highlighted task
+        selectedTask = document.querySelector('.taskItem.selected');
+        console.log(selectedTask)
+        taskId = selectedTask.getAttribute('task-id')
+
+        if(taskId !== undefined) {
+            console.log("delete");
+            console.log(taskId);
+
+            // deletes the task w specified ID. Handles duplicate task name cases.
+            var dataToSend = {
+                'deleteTask': taskId
+            };
+
+            fetch('/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataToSend)
+            })
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(function(response) {
+                console.log(response);
+                displayLength--;
+            })
+            .catch(function(error){
+                console.error("Error: ", error);
+            });
+
+            selectedTask.remove();
+        }
+    });
+
+    doneButton.addEventListener('click', function() {
+        var selectedTask = document.querySelector('.taskItem.selected');
+        var taskId = selectedTask.getAttribute('task-id');
+
+        if(taskId != undefined) {
+            if(selectedTask.classList.contains('complete')){
+                console.log("undo complete");
+                selectedTask.classList.remove('complete');
+            }else{
+                console.log('task done');
+                console.log(taskId);
+                selectedTask.classList.add('complete');
+            }
+        }
+    });
+});
+
+// --------OLD JQUERY CODE--------- //
+/**
+var displayLength = 0;
 $(document).ready(function() {
     $('#addButton').click(function() {
         var userInput = $('#taskInput').val();
@@ -109,3 +242,4 @@ $(document).ready(function() {
     });
 });
 
+**/

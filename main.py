@@ -24,8 +24,8 @@ def delete():
     # receives input from client
     try:
         data = request.json
-        task_to_delete = data.get('deleteTask')
-
+        task_to_delete = int(data.get('deleteTask'))
+        print(task_to_delete)
         # searches for task with specified ID
         for t in tasks:
             if t[1] == task_to_delete:
@@ -34,7 +34,7 @@ def delete():
         print("Updated tasks:", tasks)
 
         # returns the updated list in response object
-        response = {'updated list': tasks}
+        response = {'updated list': tasks, 'task_to_delete': task_to_delete}
         return jsonify(response)
 
     except Exception as e:
