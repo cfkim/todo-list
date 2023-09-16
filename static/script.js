@@ -96,9 +96,15 @@ $(document).ready(function() {
         var taskId = selectedTask.data('task-id');
 
         if (taskId !== undefined) {
-            console.log('task done');
-            console.log(taskId);
-            selectedTask.addClass('complete');
+            if (selectedTask.hasClass('complete')) {
+                console.log('undo marked complete');
+                selectedTask.removeClass('complete');
+            }else{
+                console.log('task done');
+                console.log(taskId);
+                selectedTask.addClass('complete');
+            }
+
         }
     });
 });
