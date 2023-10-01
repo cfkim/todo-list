@@ -34,13 +34,31 @@ def delete():
         print("Updated tasks:", tasks)
 
         # returns the updated list in response object
-        response = {'updated list': tasks, 'task_to_delete': task_to_delete}
+        response = {'updated_list': tasks, 'task_to_delete': task_to_delete}
         return jsonify(response)
 
     except Exception as e:
         error_response = {'message': f'Error: {str(e)}'}
         return jsonify(error_response)
 
+# wrote a separate add function that accepts a whole list
+@app.route("/refresh", methods=['POST'])
+def refresh():
+    try:
+        global tasks
+        global counter
+        # print(counter)
+        data = request.json
+        loaded = data.get('loaded_tasks')
+        # print(loaded)
+        tasks = loaded
+        # print(tasks)
+        # print(counter)
+        response = {'list': tasks}
+        return jsonify(response)
+    except Exception as e:
+        error_response = {'message': f'Error: {str(e)}'}
+        return jsonify(error_response)
 @app.route("/todo", methods=['POST'])
 def todo():
     try:

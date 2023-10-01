@@ -34,7 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(function(response){
-                var todoList = response.list; // the list returned from server
+                var todoList = response.list; // the updated list returned from server
+                console.log("HERE")
                 console.log(todoList)
                 for(var i = displayLength; i < todoList.length; i++){
                     var task = todoList[i]
@@ -62,6 +63,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     // add the dynamically created listItem to the todo_list element in HTML
                     todo_list.appendChild(listItem);
+                    console.log(todo_list);
+                    // saves the updated list of tasks to local storage
+                    console.log('locally adding:')
+                    // console.log(todoList)
+                    tasks = todoList;
+                    // console.log(tasks)
+                    saveTasks(tasks);
                 }
 
                 displayLength = todoList.length;
@@ -104,7 +112,14 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(function(response) {
                 console.log(response);
                 displayLength--;
-            })
+                // remove task from local storage
+                console.log('removed tasks');
+                // console.log(taskId);
+                var new_tasks = response.updated_list;
+                // console.log(new_tasks);
+                saveTasks(new_tasks);
+                })
+
             .catch(function(error){
                 console.error("Error: ", error);
             });
@@ -128,7 +143,93 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // --------ADDING PERSISTENCE--------- //
+    // Function to load tasks from Local Storage
+    function loadTasks() {
+        console.log('loaded tasks')
+        const tasksJSON = localStorage.getItem('tasks');
+        if (tasksJSON) {
+            return JSON.parse(tasksJSON);
+        }
+        return;
+    }
+
+    // Function to save tasks to Local Storage
+    function saveTasks(tasks) {
+        console.log('saved Task')
+        console.log(tasks)
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    // Handle Page Refresh
+    // arrow function used for brevity
+    window.addEventListener('load', () => {
+        tasks = loadTasks();
+        console.log(tasks)
+        console.log('refresh')
+        if(tasks != undefined){
+            if(tasks.length != 0){
+                displayLength = tasks.length;
+                console.log('here')
+                // send loaded tasks back to backend
+                var dataToSend = {
+                    'loaded_tasks': tasks
+                };
+
+                // using native browser API with fetch command
+                fetch('/refresh', {
+                    method: 'POST',
+                    headers:{
+                        'Content-Type' : 'application/json'
+                    },
+                    body: JSON.stringify(dataToSend)
+                }) // returns a promise object, ensures that asynchronous actions can be performed
+                .then(function(response){
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(function(response){
+                    // Populate your task list UI with the tasks from 'tasks' array
+                    console.log(response.list)
+                    for(var i = 0; i < tasks.length; i++){
+                        var task = tasks[i];
+                        var listItem = document.createElement('li');
+                        listItem.setAttribute('task-id', task[1]);
+                        listItem.classList.add('taskItem'); // adds class to list item element
+                        listItem.textContent = task[0];
+
+                        listItem.addEventListener('click', function(){
+                            console.log('task clicked');
+                            console.log(this.getAttribute('task-id'));
+                            if (this.classList.contains('selected')){
+                                this.classList.remove('selected');
+                            }else{
+                                var selectedTasks = document.querySelectorAll('.taskItem.selected')
+                                for(var i = 0; i < selectedTasks.length; i++){
+                                    selectedTasks[i].classList.remove('selected');
+                                }
+                                this.classList.add('selected');
+
+                            }
+
+                            // console.log(this.classList)
+                        });
+
+                        todo_list.append(listItem);
+                    }
+                })
+                .catch(function(error){
+                    console.error('Error: ', error);
+                });
+            }
+        }
+
+    });
 });
+
 
 // --------OLD JQUERY CODE--------- //
 /**
