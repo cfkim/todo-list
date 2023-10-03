@@ -15,9 +15,26 @@ def add_task(task):
     global counter
     # counter represents the #th task that the user adds
     counter += 1
-    # appends a tuple(task, task.id)
-    tasks.append((task, counter))
+    # appends an array (task, task.id)
+    tasks.append([task, counter, 0])
     return tasks
+@app.route("/complete", methods=['POST'])
+def complete():
+    try:
+        data = request.json
+        task_to_mark = int(data.get('completeTask'))
+        print(task_to_mark)
+        for t in tasks:
+            if t[1] == task_to_mark:
+                if t[2] != 1:  # mark complete if not already marked complete
+                    t[2] = 1
+                else:
+                    t[2] = 0  # mark incomplete if already marked complete
+        response = {'updated_list': tasks}
+        return jsonify(response)
+    except Exception as e:
+        error_response = {'message': f'Error: {str(e)}'}
+        return jsonify(error_response)
 
 @app.route("/delete", methods=['POST'])
 def delete():

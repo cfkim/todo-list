@@ -118,8 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var new_tasks = response.updated_list;
                 // console.log(new_tasks);
                 saveTasks(new_tasks);
-                })
-
+            })
             .catch(function(error){
                 console.error("Error: ", error);
             });
@@ -141,6 +140,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(taskId);
                 selectedTask.classList.add('complete');
             }
+
+            // update backend
+            var dataToSend = {
+                'completeTask': taskId
+            };
+
+            fetch('/complete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataToSend)
+            })
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(function(response) {
+                console.log('marked task complete. Updated list, below')
+                console.log(response)
+                var new_tasks = response.updated_list;
+                // update task list in the local storage. Don't know if this is necessary.
+                saveTasks(new_tasks);
+            })
+            .catch(function(error){
+                console.error("Error: ", error);
+            });
         }
     });
 
@@ -200,6 +228,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         listItem.setAttribute('task-id', task[1]);
                         listItem.classList.add('taskItem'); // adds class to list item element
                         listItem.textContent = task[0];
+                        // persistence with completion marking
+                        if(task[2] == 1){
+                            listItem.classList.add('complete');
+                        }
 
                         listItem.addEventListener('click', function(){
                             console.log('task clicked');
