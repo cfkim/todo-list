@@ -11,12 +11,12 @@ def index():
 tasks = []
 counter = 0
 
-def add_task(task):
+def add_task(task, date):
     global counter
     # counter represents the #th task that the user adds
     counter += 1
-    # appends an array (task, task.id)
-    tasks.append([task, counter, 0])
+    # appends an array (task, task.id, completed?, date)
+    tasks.append([task, counter, 0, date])
     return tasks
 @app.route("/complete", methods=['POST'])
 def complete():
@@ -81,9 +81,10 @@ def todo():
     try:
         data = request.json
         user_text = data.get('task')
+        task_date = data.get('date')
 
         # sends this new list to js to update the page
-        newList = add_task(user_text)
+        newList = add_task(user_text, task_date)
 
         response = {'list': newList}
         return jsonify(response)

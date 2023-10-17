@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var deleteButton = document.getElementById('deleteButton');
     var doneButton = document.getElementById('doneButton');
     var taskInput = document.getElementById('taskInput');
+    var dateInput = document.getElementById('dateInput');
     // var responseMessage = document.getElementById('responseMessage');
     var todo_list = document.getElementById('todo_list');
     var displayLength = 0;
@@ -11,10 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // add event listener to add button
     addButton.addEventListener('click', function() {
         var userInput = taskInput.value;
-
+        var date = dateInput.value;
         // javascript object
         var dataToSend = {
-            'task': userInput
+            'task': userInput,
+            'date': date
         };
 
         if (userInput !== undefined && userInput.trim().length != 0) {
@@ -41,8 +43,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     var task = todoList[i]
                     var listItem = document.createElement('li');
                     listItem.setAttribute('task-id', task[1]);
+                    listItem.setAttribute('due-date', task[3]);
                     listItem.classList.add('taskItem'); // adds class to list item element
-                    listItem.textContent = task[0];
+                    listItem.textContent = task[0] + " " + task[3];
+
 
                     listItem.addEventListener('click', function(){
                         console.log('task clicked');
@@ -60,6 +64,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
                         console.log(this.classList)
                     });
+
+                    // mark if the task is past due date
+                    var curr_date = new Date();
+                    // get it in YYYY-MM-DD format
+                    const year = curr_date.getFullYear();
+                    const month = (curr_date.getMonth() + 1).toString().padStart(2, '0'); // Adding 1 to month since it's zero-based
+                    const day = curr_date.getDate().toString().padStart(2, '0');
+
+                    curr_date = `${year}-${month}-${day}`;
+
+                    console.log(curr_date)
+                    if (listItem.getAttribute('due-date') != ""){
+                        if (listItem.getAttribute('due-date') < curr_date){
+                            listItem.classList.add('expired');
+                        }
+                    }
 
                     // add the dynamically created listItem to the todo_list element in HTML
                     todo_list.appendChild(listItem);
@@ -227,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         var listItem = document.createElement('li');
                         listItem.setAttribute('task-id', task[1]);
                         listItem.classList.add('taskItem'); // adds class to list item element
-                        listItem.textContent = task[0];
+                        listItem.textContent = task[0] + " " + task[3];
                         // persistence with completion marking
                         if(task[2] == 1){
                             listItem.classList.add('complete');

@@ -5,6 +5,9 @@
     text-decoration: line-through;
 }
 
+.expired {
+    text-decoration: underline red;
+}
 .container {
     display: flex;
     flex-direction: column;
