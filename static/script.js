@@ -7,7 +7,78 @@ document.addEventListener('DOMContentLoaded', function() {
     var dateInput = document.getElementById('dateInput');
     // var responseMessage = document.getElementById('responseMessage');
     var todo_list = document.getElementById('todo_list');
+
+    // timer related buttons
+    var timerButton = document.getElementById('timer');
+    var pauseButton = document.getElementById('pause');
+    var resetButton = document.getElementById('reset');
+
     var displayLength = 0;
+
+    // timer variables
+    var timerInterval = null; // Initialize a variable to store the timer interval
+    var timer = 5; // Initial timer value in seconds
+    var isPaused = false; // Flag to track whether the timer is paused
+    var pausedTime = timer; // the time when it was paused TODO did not finish trying to fix this
+
+    // pauses the timer
+    pauseButton.addEventListener('click', function() {
+        if (timerInterval !== null){
+            clearInterval(timerInterval);
+            timerInterval = null;
+            isPaused = true;
+            pausedTime = timer;
+            console.log('timer paused');
+        }
+    });
+
+    function reset(){
+        console.log(timerInterval);
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isPaused = false;
+        timer = 5; // Reset the timer to the initial value (1500 seconds)
+        updateTimerDisplay();
+    }
+
+    // resets timer
+    resetButton.addEventListener('click', reset);
+
+    // separate function so that multiple functions can update the time without redundant code
+    function updateTimerDisplay(){
+        const timerDisplay = document.getElementById('time-left');
+        const minutes = parseInt(timer / 60, 10);
+        const seconds = parseInt(timer % 60, 10);
+        const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+        const formattedSeconds = seconds < 10 ? "0" + seconds : seconds;
+        timerDisplay.textContent = formattedMinutes + ":" + formattedSeconds;
+    }
+
+    // timer function CHAT GPT
+    timerButton.addEventListener('click', function() {
+            isPaused = false; // Resume the timer
+            console.log(timerInterval);
+            console.log(isPaused);
+
+            // will not run the function if the clock is ticking down already
+            if (timerInterval == null && !isPaused) {
+                // console.log("here")
+                updateTimerDisplay(); // Update the display immediately
+                timerInterval = setInterval(function () {
+                    console.log(timerInterval);
+                    updateTimerDisplay();
+                    if (--timer < 0) {
+                        reset();
+                        var audio = new Audio("static/success-1-6297.mp3");
+                        audio.play();
+                        const timerDisplay = document.getElementById('time-left');
+                        timerDisplay.textContent = "Timer Expired!";
+                    }
+                }, 1000); // Update the timer every 1 second
+
+            }
+        }
+    );
 
     // add event listener to add button
     addButton.addEventListener('click', function() {
