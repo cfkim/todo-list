@@ -1,4 +1,3 @@
-// --------NEW VANILLA JAVASCRIPT CODE--------- //
 document.addEventListener('DOMContentLoaded', function() {
     var addButton = document.getElementById('addButton');
     var deleteButton = document.getElementById('deleteButton');
@@ -54,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
         timerDisplay.textContent = formattedMinutes + ":" + formattedSeconds;
     }
 
-    // timer function CHAT GPT
+    // timer function
     timerButton.addEventListener('click', function() {
             isPaused = false; // Resume the timer
             console.log(timerInterval);
@@ -69,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     updateTimerDisplay();
                     if (--timer < 0) {
                         reset();
-                        var audio = new Audio("static/success-1-6297.mp3");
+                        var audio = new Audio("static/success-1-6297.mp3"); // add this to repo
                         audio.play();
                         const timerDisplay = document.getElementById('time-left');
                         timerDisplay.textContent = "Timer Expired!";
@@ -158,6 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // saves the updated list of tasks to local storage
                     console.log('locally adding:')
                     // console.log(todoList)
+                    // update the local window storage
                     tasks = todoList;
                     // console.log(tasks)
                     saveTasks(tasks);
@@ -175,8 +175,8 @@ document.addEventListener('DOMContentLoaded', function() {
     deleteButton.addEventListener('click', function() {
         // grabs the currently highlighted task
         selectedTask = document.querySelector('.taskItem.selected');
-        console.log(selectedTask)
-        taskId = selectedTask.getAttribute('task-id')
+        // console.log(selectedTask)
+        taskId = selectedTask.getAttribute('task-id');
 
         if(taskId !== undefined) {
             console.log("delete");
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('marked task complete. Updated list, below')
                 console.log(response)
                 var new_tasks = response.updated_list;
-                // update task list in the local storage. Don't know if this is necessary.
+                // update task list in the local storage.
                 saveTasks(new_tasks);
             })
             .catch(function(error){
@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return response.json();
                 })
                 .then(function(response){
-                    // Populate your task list UI with the tasks from 'tasks' array
+                    // Populates the webpage with the old tasks
                     console.log(response.list)
                     for(var i = 0; i < tasks.length; i++){
                         var task = tasks[i];
@@ -352,118 +352,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
     });
 });
-
-
-// --------OLD JQUERY CODE--------- //
-/**
-var displayLength = 0;
-$(document).ready(function() {
-    $('#addButton').click(function() {
-        var userInput = $('#taskInput').val();
-
-        var dataToSend = {
-            'task': userInput
-        };
-
-        if (userInput !== undefined && userInput.trim().length != 0) {
-            document.getElementById("taskInput").value = "";
-
-            $.ajax({
-                url: '/todo',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(dataToSend),
-
-                success: function(response) {
-                    $('#responseMessage').text(response.message);
-
-                    console.log(response);
-
-                    var todoList = response.list;
-                    var targetList = $('#todo_list');
-
-                    for (var i = displayLength; i < todoList.length; i++) {
-                        var task = todoList[i];
-
-                        var listItem = $('<li>')
-                            .attr('data-task-id', task[1])
-                            .addClass('taskItem')
-                            .text(task[0]);
-                        targetList.append(listItem);
-
-                        listItem.click(function() {
-                            console.log('Task clicked');
-                            if ($(this).hasClass('selected')){
-                                $(this).removeClass('selected');
-                            }else{
-
-                                $('.taskItem').removeClass('selected');
-                                console.log(this);
-                                $(this).addClass('selected');
-
-                            }
-                        });
-                    }
-
-                    displayLength = todoList.length;
-
-                },
-
-                error: function(error) {
-                    console.error('Error:', error);
-                }
-            });
-        }
-    });
-
-    $('#deleteButton').click(function() {
-        var selectedTask = $('.taskItem.selected');
-        var taskId = selectedTask.data('task-id');
-        if (taskId !== undefined) {
-            console.log("delete");
-            console.log(taskId);
-
-            var dataToSend = {
-                'deleteTask': taskId
-            };
-
-            $.ajax({
-                url: '/delete',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(dataToSend),
-
-                success: function(response) {
-                    console.log(response);
-                    displayLength--;
-                },
-
-                error: function(error) {
-                    console.error('Error:', error);
-                }
-            });
-
-            selectedTask.remove();
-        }
-    });
-
-    $('#doneButton').click(function() {
-
-        var selectedTask = $('.taskItem.selected');
-        var taskId = selectedTask.data('task-id');
-
-        if (taskId !== undefined) {
-            if (selectedTask.hasClass('complete')) {
-                console.log('undo marked complete');
-                selectedTask.removeClass('complete');
-            }else{
-                console.log('task done');
-                console.log(taskId);
-                selectedTask.addClass('complete');
-            }
-
-        }
-    });
-});
-
-**/
